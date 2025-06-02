@@ -17,9 +17,20 @@ app.secret_key = 'your_fixed_secret_key_for_development_v3' # 确保使用固定
 DB_CONFIG = {
     'host': 'localhost',
     'user': 'root',
-    'password': '123456',
-    'database': 'community_database',
+    'password': '1111',
+    'database': 'community_database',#对应数据库创建的模式schema 
     'autocommit': True # 确保DML操作立即生效
 }
 ```
 
+然后参考下面指令在VSCode自带的终端内执行下面的操作。
+```
+# 创建虚拟环境
+conda create --name db_hw python=3.10
+# 激活虚拟环境
+conda activate db_hw
+# 下载外部库
+pip install Flask mysql-connector-python Pillow Werkzeug
+# 运行app.py进入社区网页
+python app.py
+```
