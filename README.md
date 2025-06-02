@@ -5,7 +5,7 @@
 
 ## 前端准备工作
 首先修改app.py中关于数据库的信息，改为个人的数据库。
-```
+```python
 import os
 # ...
 import datetime
