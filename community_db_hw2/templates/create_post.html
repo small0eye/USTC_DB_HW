@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}创建新帖 - {{ section_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2>在 "{{ section_name }}" 板块创建新帖</h2>
+    <hr>
+    <form method="POST" action="{{ url_for('create_post', section_id=section_id) }}">
+        <div class="mb-3">
+            <label for="title" class="form-label">帖子标题</label>
+            <input type="text" class="form-control" id="title" name="title" maxlength="20" required>
+        </div>
+        <div class="mb-3">
+            <label for="content" class="form-label">帖子内容</label>
+            <textarea class="form-control" id="content" name="content" rows="10" maxlength="200" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">发表帖子</button>
+        <a href="{{ url_for('section_detail', section_id=section_id) }}" class="btn btn-secondary">取消</a>
+    </form>
+</div>
+{% endblock %}

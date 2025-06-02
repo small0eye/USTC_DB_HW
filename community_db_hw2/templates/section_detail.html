@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}{{ section.section_name }} - 社区论坛{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- 左侧栏 -->
+        <div class="col-md-4"> {# 约33% 宽度，Bootstrap的col-md-4表示12列中的4列 #}
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">{{ section.section_name }}</h2>
+                    <p class="card-text text-muted">{{ section.section_description }}</p>
+                    <hr>
+                    <a href="{{ url_for('homepage') }}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-arrow-left"></i> 返回首页
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧栏 -->
+        <div class="col-md-8"> {# 约67% 宽度，Bootstrap的col-md-8表示12列中的8列 #}
+            <div class="d-flex justify-content-end align-items-center mb-3">
+                {% if session.user_id %} {# 仅登录用户可见创建帖子按钮 #}
+                <a href="{{ url_for('create_post', section_id=section.section_id) }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> 发表新帖
+                </a>
+                {% endif %}
+            </div>
+
+            {% if posts %}
+                <ul class="list-group shadow-sm">
+                    {% for post in posts %}
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">
+                                <a href="{{ url_for('post_detail', post_id=post.post_id) }}" class="text-decoration-none">{{ post.post_name }}</a>
+                            </div>
+                            <small class="text-muted">
+                                <img src="{{ post.poster_avatar if post.poster_avatar else url_for('static', filename='img/avatars/default_avatar.png') }}" alt="{{ post.poster_name }}'s avatar" class="rounded-circle me-1" style="width: 20px; height: 20px; object-fit: cover;">
+                                {{ post.poster_name }} 发表于 {{ post.create_date.strftime('%Y-%m-%d') }}
+                            </small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-danger rounded-pill me-2"><i class="fas fa-heart"></i> {{ post.number_likes }}</span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="alert alert-info" role="alert">
+                    该板块下还没有帖子。
+                    {% if session.user_id %}
+                        成为第一个<a href="{{ url_for('create_post', section_id=section.section_id) }}" class="alert-link">发帖人</a>！
+                    {% else %}
+                        <a href="{{ url_for('login', next=url_for('create_post', section_id=section.section_id)) }}" class="alert-link">登录</a>后发帖。
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

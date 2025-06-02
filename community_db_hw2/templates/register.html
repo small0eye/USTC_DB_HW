@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}注册 - 社区论坛{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">创建账户</h2>
+                <form method="POST" action="{{ url_for('register') }}" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">用户名</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">密码</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">确认密码</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="avatar" class="form-label">头像 (可选)</label>
+                        <input type="file" class="form-control" id="avatar" name="avatar" accept="image/png, image/jpeg, image/gif">
+                        <div id="avatar-preview" class="mt-2 text-center">
+                            <img id="avatar-preview-img" src="#" alt="头像预览" style="max-width: 100px; max-height: 100px; display: none;" class="rounded-circle"/>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">注册</button>
+                </form>
+                <div class="mt-3 text-center">
+                    <a href="{{ url_for('login') }}" class="btn btn-link">已有账户？返回登录</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const avatarInput = document.getElementById('avatar');
+    const avatarPreviewImg = document.getElementById('avatar-preview-img');
+
+    if (avatarInput && avatarPreviewImg) {
+        avatarInput.addEventListener('change', function(event) {
+            if (event.target.files && event.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    avatarPreviewImg.src = e.target.result;
+                    avatarPreviewImg.style.display = 'block';
+                }
+                reader.readAsDataURL(event.target.files[0]);
+            } else {
+                avatarPreviewImg.src = '#';
+                avatarPreviewImg.style.display = 'none';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

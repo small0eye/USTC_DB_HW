@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}创建新板块 - 社区论坛{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">创建新板块</h2>
+                    <form method="POST" action="{{ url_for('create_section') }}">
+                        <div class="mb-3">
+                            <label for="section_name" class="form-label">板块名称</label>
+                            <input type="text" class="form-control" id="section_name" name="section_name" value="{{ section_name or '' }}" maxlength="20" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="section_description" class="form-label">板块描述</label>
+                            <textarea class="form-control" id="section_description" name="section_description" rows="5" maxlength="200" required>{{ section_description or '' }}</textarea>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">创建板块</button>
+                            <a href="{{ url_for('homepage') }}" class="btn btn-outline-secondary">取消</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reportModalLabel">举报帖子: {{ post.post_name|e }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Pass post.post_id to the form via data attribute -->
+                <form id="reportPostForm" data-post-id="{{ post.post_id }}"> 
+                    <div class="mb-3">
+                        <label for="reportReason" class="form-label">举报原因 (必填, 最多200字)</label>
+                        <textarea class="form-control" id="reportReason" name="report_reason" rows="3" required maxlength="200"></textarea>
+                    </div>
+                    <div id="reportFeedback" class="alert" role="alert" style="display: block;"></div> <!-- Ensure it's visible for messages -->
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-danger">提交举报</button>
+                    </div>
+                </form>
+                <hr>
+                <h6>您的举报历史 (此帖):</h6>
+                <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>原因</th>
+                                <th>状态</th>
+                                <!-- <th>举报时间</th> -->
+                            </tr>
+                        </thead>
+                        <tbody id="reportHistoryTableBody">
+                            <!-- History will be loaded by JavaScript -->
+                            <tr><td colspan="2" class="text-center">加载中...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.post_name }} - 社区论坛{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Navigation to section -->
+    <div class="mb-3">
+        <a href="{{ url_for('section_detail', section_id=post.section_id_in) }}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i> 返回 "{{ post.section_name }}" 板块
+        </a>
+    </div>
+
+    <!-- Post Header -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+                <h1 class="card-title mb-0">{{ post.post_name }}</h1>
+            </div>
+            <hr class="mt-2 mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex align-items-center">
+                    <img src="{{ post.poster_avatar if post.poster_avatar else url_for('static', filename='img/avatars/default_avatar.png') }}" alt="{{ post.poster_name }}" class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                    <span class="text-muted"> {{ post.poster_name }}</span>
+                </div>
+                <div class="mt-3 d-flex justify-content-start align-items-center">
+                    {% if session.user_id %}
+                        <button id="likeButton" class="btn {% if user_liked_post %}btn-primary{% else %}btn-outline-primary{% endif %} me-2" data-post-id="{{ post.post_id }}">
+                            <i class="fas fa-thumbs-up"></i> <span id="likeAction">{% if user_liked_post %}已赞{% else %}赞{% endif %}</span> (<span id="likesCount">{{ post.number_likes }}</span>)
+                        </button>
+                        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#reportModal">
+                            <i class="fas fa-flag"></i> 举报
+                        </button>
+                    {% else %}
+                        <a href="{{ url_for('login', next=request.url) }}" class="btn btn-outline-primary me-2">
+                            <i class="fas fa-thumbs-up"></i> 登录后点赞 ({{ post.number_likes }})
+                        </a>
+                         <a href="{{ url_for('login', next=request.url) }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-flag"></i> 登录后举报
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <hr>
+            <!-- Post Content -->
+            <div class="post-content mb-3">
+                {{ post.post_content | safe }} {# Use safe if content can contain HTML, otherwise escape it #}
+            </div>
+            <small class="text-muted">创建于: {{ post.create_date.strftime('%Y-%m-%d') }}</small>
+        </div>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h5>评论区 ({{ comments|length }})</h5>
+        </div>
+        <div class="card-body">
+            {% if comments %}
+                {% for comment in comments %}
+                <div class="comment mb-3 pb-3 border-bottom">
+                    <div class="d-flex align-items-start">
+                        <img src="{{ comment.commenter_avatar if comment.commenter_avatar else url_for('static', filename='img/avatars/default_avatar.png') }}" alt="{{ comment.commenter_name }}" class="rounded-circle me-3" style="width: 35px; height: 35px; object-fit: cover;">
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ comment.commenter_name }}</strong>
+                                    <small class="text-muted ms-2">{{ comment.comment_date.strftime('%Y-%m-%d') }}</small>
+                                </div>
+                            </div>
+                            <p class="mb-0 mt-1">{{ comment.comment_content }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <p class="text-muted">还没有评论，快来抢沙发！</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Comment Form -->
+    {% if session.user_id %}
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5>发表评论</h5>
+            <form method="POST" action="{{ url_for('submit_comment', post_id=post.post_id) }}">
+                {# <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> #}
+                <div class="mb-3">
+                    <textarea class="form-control" name="comment_content" rows="3" placeholder="写下你的评论..." required maxlength="200"></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">发表</button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info mt-3" role="alert">
+        请 <a href="{{ url_for('login', next=request.url) }}" class="alert-link">登录</a> 后发表评论。
+    </div>
+    {% endif %}
+
+    {% if session.user_id %} {# 仅为登录用户渲染举报模态框的触发逻辑和模态框本身 #}
+        {% include 'partials/_report_modal.html' %}
+    {% endif %}
+
+</div> {# 这个是 class="container py-4" 的结束 div #}
+{% endblock %} {# 这个是 block content 的结束标签 #}
+
+
+{% block scripts_extra %}
+<script>
+    // Function to escape HTML to prevent XSS
+    function escapeHtml(unsafe) {
+        if (typeof unsafe !== 'string') {
+            if (unsafe === null || typeof unsafe === 'undefined') return '';
+            try { unsafe = String(unsafe); } catch (e) { console.error("Error in escapeHtml converting to string:", e); return ''; }
+        }
+        return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    // --- Like Button Logic ---
+    function handleToggleLike(postId) {
+        const likeButton = document.getElementById('likeButton'); // Targets the specific button
+        const likeActionSpan = document.getElementById('likeAction');
+        const likesCountSpan = document.getElementById('likesCount');
+
+        if (!likeButton || !likeActionSpan || !likesCountSpan) {
+            console.error('Like button elements not found.');
+            return;
+        }
+
+        fetch(`/toggle_like/${postId}`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                likesCountSpan.textContent = data.likes_count;
+                if (data.liked) {
+                    likeButton.classList.remove('btn-outline-primary');
+                    likeButton.classList.add('btn-primary');
+                    likeActionSpan.textContent = '已赞';
+                } else {
+                    likeButton.classList.remove('btn-primary');
+                    likeButton.classList.add('btn-outline-primary');
+                    likeActionSpan.textContent = '赞';
+                }
+            } else {
+                alert(data.message || '操作失败');
+            }
+        })
+        .catch(error => {
+            console.error('Error toggling like:', error);
+            alert('点赞操作时发生错误。');
+        });
+    }
+
+    // --- Report Modal and History Logic ---
+    function loadReportHistory(postId) {
+        console.log(`[ReportHistory] Loading history for post ID: ${postId}`);
+        const historyTableBody = document.getElementById('reportHistoryTableBody'); // Correct ID from _report_modal.html
+        if (!historyTableBody) {
+            console.error('[ReportHistory] Report history container (reportHistoryTableBody) not found.');
+            return;
+        }
+        historyTableBody.innerHTML = '<tr><td colspan="2" class="text-center">加载中...</td></tr>';
+        console.log('[ReportHistory] UI set to "加载中..." for table body');
+
+        fetch(`/get_report_history/${postId}`)
+            .then(response => {
+                if (!response.ok) { 
+                    console.error(`[ReportHistory] HTTP error! Status: ${response.status}`);
+                    return response.text().then(text => {
+                        throw new Error(`HTTP error! Status: ${response.status}, Body: ${text}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('[ReportHistory] JSON data received:', data);
+                if (data && typeof data.success === 'boolean' && Array.isArray(data.reports)) {
+                    if (data.success) {
+                        console.log(`[ReportHistory] API call successful. Reports count: ${data.reports.length}`);
+                        if (data.reports.length > 0) {
+                            let html = '';
+                            data.reports.forEach((report, index) => {
+                                console.log(`[ReportHistory] Processing report item ${index + 1}/${data.reports.length}:`, JSON.stringify(report));
+                                const reason = escapeHtml(report.report_reason || 'N/A');
+                                const statusText = escapeHtml(report.status_text || '未知状态');
+                                let statusClass = 'text-muted';
+                                const reportStatusNum = parseInt(report.report_status, 10);
+                                switch (reportStatusNum) {
+                                    case 0: statusClass = 'text-danger'; break;
+                                    case 1: statusClass = 'text-warning'; break;
+                                    case 2: statusClass = 'text-success'; break;
+                                }
+                                html += `<tr><td>${reason}</td><td><span class="${statusClass}">${statusText}</span></td></tr>`;
+                            });
+                            historyTableBody.innerHTML = html;
+                            console.log('[ReportHistory] Successfully updated UI with report list.');
+                        } else {
+                            historyTableBody.innerHTML = '<tr><td colspan="2" class="text-center text-muted">您尚未举报过此帖子，或您的举报历史为空。</td></tr>';
+                            console.log('[ReportHistory] Updated UI with no reports message.');
+                        }
+                    } else {
+                        console.warn('[ReportHistory] API call reported not successful. Message:', data.message);
+                        historyTableBody.innerHTML = `<tr><td colspan="2" class="text-center text-danger">无法加载举报历史: ${escapeHtml(data.message || '服务端未提供明确错误信息')}</td></tr>`;
+                    }
+                } else {
+                    console.error('[ReportHistory] Invalid data structure received from API. Data:', data);
+                    historyTableBody.innerHTML = '<tr><td colspan="2" class="text-center text-danger">从服务器接收到的举报数据格式无效。</td></tr>';
+                }
+            })
+            .catch(error => {
+                console.error('[ReportHistory] Critical error during fetch or JSON parsing:', error);
+                historyTableBody.innerHTML = '<tr><td colspan="2" class="text-center text-danger">加载举报历史时发生严重错误，请查看控制台。</td></tr>';
+            });
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Attach like button listener
+        const likeButton = document.getElementById('likeButton');
+        if (likeButton) {
+            likeButton.addEventListener('click', function() {
+                const postId = this.getAttribute('data-post-id');
+                handleToggleLike(postId);
+            });
+        }
+
+        // Report Modal Logic
+        const reportModal = document.getElementById('reportModal');
+        if (reportModal) {
+            reportModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget; // Button that triggered the modal
+                // const postId = button.getAttribute('data-post-id'); // The report button itself doesn't have data-post-id
+                                                                    // The post_id is part of the form action or a data attribute on the form
+                const reportForm = reportModal.querySelector('#reportPostForm'); // Correct form ID
+                if (reportForm) {
+                    const postId = reportForm.getAttribute('data-post-id'); // Get post_id from form's data attribute
+                    if (postId) {
+                        reportForm.action = `/submit_report/${postId}`; // Set or confirm action
+                        loadReportHistory(postId);
+                    } else {
+                        console.error("Report modal setup error: postId missing on form.");
+                    }
+                } else {
+                     console.error("Report modal setup error: reportPostForm not found.");
+                }
+            });
+
+            reportModal.addEventListener('hidden.bs.modal', function () {
+                const form = reportModal.querySelector('#reportPostForm');
+                if (form) form.reset();
+                const reportFeedbackDiv = document.getElementById('reportFeedback'); // Correct ID
+                if (reportFeedbackDiv) reportFeedbackDiv.innerHTML = '';
+                const historyTableBody = document.getElementById('reportHistoryTableBody'); // Correct ID
+                if (historyTableBody) historyTableBody.innerHTML = '<tr><td colspan="2" class="text-center">加载中...</td></tr>';
+            });
+        }
+
+        // Report form submission (AJAX)
+        const reportPostForm = document.getElementById('reportPostForm'); // Correct form ID
+        if (reportPostForm) {
+            reportPostForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const reportFeedbackDiv = document.getElementById('reportFeedback'); // Correct ID
+                const reportReasonInput = document.getElementById('reportReason'); // Correct ID
+                
+                // const postId = this.action.split('/').pop(); // This works if action is set correctly
+                const postId = this.getAttribute('data-post-id'); // More robust if action isn't set initially
+
+                if (!reportFeedbackDiv || !reportReasonInput || !postId) {
+                    console.error("Report form submission elements missing.");
+                    return;
+                }
+
+                reportFeedbackDiv.className = 'alert'; // Clear previous alert classes
+                reportFeedbackDiv.innerHTML = '<p class="text-info">提交中...</p>';
+
+                if (!reportReasonInput.value.trim()) {
+                    reportFeedbackDiv.innerHTML = '举报原因不能为空。';
+                    reportFeedbackDiv.classList.add('alert-danger');
+                    return;
+                }
+
+                fetch(`/submit_report/${postId}`, { // Use postId variable
+                    method: 'POST',
+                    body: new FormData(this)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        reportFeedbackDiv.innerHTML = `${escapeHtml(data.message)}`;
+                        reportFeedbackDiv.classList.remove('alert-danger', 'alert-info');
+                        reportFeedbackDiv.classList.add('alert-success');
+                        reportPostForm.reset();
+                        loadReportHistory(postId); // Refresh history
+                    } else {
+                        reportFeedbackDiv.innerHTML = `${escapeHtml(data.message || '提交失败')}`;
+                        reportFeedbackDiv.classList.remove('alert-success', 'alert-info');
+                        reportFeedbackDiv.classList.add('alert-danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error submitting report:', error);
+                    reportFeedbackDiv.innerHTML = '提交举报时发生错误。';
+                    reportFeedbackDiv.classList.remove('alert-success', 'alert-info');
+                    reportFeedbackDiv.classList.add('alert-danger');
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

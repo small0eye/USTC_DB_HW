@@ -1,0 +1,189 @@
+body {
+    padding-top: 70px; /* Account for fixed navbar, adjust if navbar height changes */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f0f2f5; /* General light grey background for the body */
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main.container {
+    flex: 1;
+}
+
+/* Updated Theme Colors: Azure-like (RGB 240, 255, 255) */
+:root {
+    --bright-gray: #F0FFFF; /* Main theme color - Azure */
+    --bright-gray-darker: #E0F5F5; /* Darker shade for hover/active */
+    --bright-gray-lighter: #F8FFFF; /* Lighter shade for navbar */
+    --text-on-bright-gray: #212529; /* Dark text for good contrast */
+    --bright-gray-border-color: #D0E8E8; /* Border color for the new theme */
+    --bright-gray-focus-shadow-rgb: "208, 232, 232"; /* RGB values for focus shadow */
+
+    /* Standard Bootstrap colors (can be overridden or used alongside custom theme) */
+    --bs-blue: #0d6efd;
+    --bs-primary: var(--bs-blue); /* Define primary based on blue */
+}
+
+/* Navbar customization */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+/* Custom Azure Theme for Navbar */
+.navbar.bg-custom-bright-gray {
+    background-color: var(--bright-gray-lighter) !important;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.navbar.bg-custom-bright-gray .navbar-brand,
+.navbar.bg-custom-bright-gray .nav-link {
+    color: var(--text-on-bright-gray);
+}
+
+.navbar.bg-custom-bright-gray .nav-link:hover,
+.navbar.bg-custom-bright-gray .nav-link:focus {
+    color: #000; /* Darker text on hover for custom theme navbar */
+}
+
+.nav-avatar { /* General avatar style for navbar */
+    width: 30px;
+    height: 30px;
+    margin-right: 8px;
+    object-fit: cover;
+}
+
+
+/* Custom Bright Gray Button - Azure Theme */
+.btn-custom-bright-gray {
+    color: var(--text-on-bright-gray);
+    background-color: var(--bright-gray);
+    border-color: var(--bright-gray-border-color);
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.btn-custom-bright-gray:hover {
+    color: var(--text-on-bright-gray);
+    background-color: var(--bright-gray-darker);
+    border-color: var(--bright-gray-darker);
+}
+
+.btn-custom-bright-gray:focus, .btn-custom-bright-gray.focus {
+    box-shadow: 0 0 0 0.25rem rgba(var(--bright-gray-focus-shadow-rgb), 0.5);
+}
+
+.btn-custom-bright-gray:active, .btn-custom-bright-gray.active,
+.show > .btn-custom-bright-gray.dropdown-toggle {
+    color: var(--text-on-bright-gray);
+    background-color: var(--bright-gray-darker);
+    border-color: var(--bright-gray-darker);
+}
+
+/* Custom Outline Bright Gray Button - Azure Theme */
+.btn-outline-custom-bright-gray {
+    color: var(--text-on-bright-gray);
+    border-color: var(--bright-gray-border-color);
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+
+.btn-outline-custom-bright-gray:hover {
+    color: var(--text-on-bright-gray);
+    background-color: var(--bright-gray);
+    border-color: var(--bright-gray-border-color);
+}
+
+.btn-outline-custom-bright-gray:focus, .btn-outline-custom-bright-gray.focus {
+    box-shadow: 0 0 0 0.25rem rgba(var(--bright-gray-focus-shadow-rgb), 0.5);
+}
+
+.btn-outline-custom-bright-gray:active, .btn-outline-custom-bright-gray.active {
+    color: var(--text-on-bright-gray);
+    background-color: var(--bright-gray);
+    border-color: var(--bright-gray-border-color);
+}
+
+/* Standard Bootstrap Button Overrides (if needed alongside custom theme) */
+.btn-primary {
+    background-color: var(--bs-primary); /* Using Bootstrap's primary color */
+    border-color: var(--bs-primary);
+}
+.btn-primary:hover {
+    background-color: #0056b3; /* Darker shade of bs-primary */
+    border-color: #0056b3;
+}
+
+.btn-outline-primary {
+    color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+.btn-outline-primary:hover {
+    color: #fff;
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+/* Card styles */
+.card {
+    border: none; /* Modern look, remove default card border */
+    transition: box-shadow .3s ease-in-out, transform .3s ease-in-out;
+    margin-bottom: 1.5rem; /* Add some default margin to cards */
+}
+
+.section-card:hover, .post-item-card:hover { /* Assuming .post-item-card is a class you might use */
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    transform: translateY(-3px);
+}
+
+/* Footer styling */
+.footer {
+    background-color: #e9ecef; /* Slightly darker than body for contrast */
+    border-top: 1px solid #dee2e6;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+/* Avatar placeholder styling */
+.avatar-placeholder {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: white;
+    font-weight: bold;
+    font-size: 1.2em;
+    text-transform: uppercase;
+    /* background-color: var(--bs-primary); Example background */
+}
+
+/* Content styling */
+.post-content {
+    line-height: 1.7;
+    font-size: 1.1rem;
+}
+
+.comment {
+    font-size: 0.95rem;
+}
+.comment strong {
+    color: var(--bs-primary); /* Bootstrap primary blue for commenter name */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sticky-lg-top {
+        position: static !important; /* Disable sticky sidebar on smaller screens */
+    }
+    .display-5 {
+        font-size: 2.5rem; /* Smaller headers on mobile */
+    }
+    body {
+        padding-top: 56px; /* Adjust navbar padding for smaller screens if navbar height changes */
+    }
+}
