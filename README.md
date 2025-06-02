@@ -1,7 +1,8 @@
 # USTC_DB_HW
 ## 数据库准备工作
 首先在MySQL中创建一个名为community_database的模式（schema），然后逐句运行database_design.sql。
-注意管理员信息是通过MySQL直接添加的。
+注意管理员信息是通过MySQL语句直接添加的。
+
 ## 前端准备工作
 首先修改app.py中关于数据库的信息，改为个人的数据库。
 ```
